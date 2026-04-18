@@ -1,0 +1,7 @@
+.idea/
+.gradle/
+.kotlin/
+build/
+.claude/settings.local.json
+docs/_site/
+docs/.jekyll-cache/
