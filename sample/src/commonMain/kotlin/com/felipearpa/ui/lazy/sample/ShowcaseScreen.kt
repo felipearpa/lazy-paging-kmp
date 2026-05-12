@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -26,7 +27,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,7 +39,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.felipearpa.ui.lazy.RefreshableLazyPagingColumn
@@ -50,6 +52,17 @@ fun ShowcaseScreen() {
     var scenario by remember { mutableStateOf(Scenario.Bidirectional) }
     val flow = remember(scenario) { scenario.flow() }
     val lazyPagingItems = flow.collectAsLazyPagingItems()
+    val lazyListState = key(scenario) { rememberLazyListState() }
+
+    LaunchedEffect(scenario, lazyPagingItems.loadState.refresh) {
+        if (lazyPagingItems.loadState.refresh !is LoadState.NotLoading) return@LaunchedEffect
+        if (lazyPagingItems.itemCount == 0) return@LaunchedEffect
+        if (lazyListState.firstVisibleItemIndex != 0) return@LaunchedEffect
+        val firstLoaded = (0 until lazyPagingItems.itemCount)
+            .firstOrNull { lazyPagingItems.peek(it) != null }
+            ?: return@LaunchedEffect
+        if (firstLoaded > 0) lazyListState.scrollToItem(firstLoaded)
+    }
 
     Scaffold(
         topBar = {
@@ -78,22 +91,41 @@ fun ShowcaseScreen() {
             RefreshableLazyPagingColumn(
                 modifier = Modifier.fillMaxSize(),
                 lazyPagingItems = lazyPagingItems,
+                lazyListState = lazyListState,
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 loadingContent = { loadingItem() },
                 errorContent = { exception -> errorItem(exception) { lazyPagingItems.retry() } },
                 emptyContent = { emptyItem() },
+                prependLoadingContent = {
+                    item { LoadingFooter(text = "Loading previous…") }
+                },
+                appendLoadingContent = {
+                    item { LoadingFooter(text = "Loading more…") }
+                },
+                prependErrorContent = { error ->
+                    item {
+                        RetryFooter(
+                            message = error.message ?: "Failed to load previous page",
+                            onRetry = { lazyPagingItems.retry() },
+                        )
+                    }
+                },
+                appendErrorContent = { error ->
+                    item {
+                        RetryFooter(
+                            message = error.message ?: "Failed to load next page",
+                            onRetry = { lazyPagingItems.retry() },
+                        )
+                    }
+                },
             ) {
-                prependLoadItem(lazyPagingItems)
-
                 items(
                     count = lazyPagingItems.itemCount,
                     key = lazyPagingItems.itemKey { it.id },
                 ) { index ->
                     val item = lazyPagingItems[index]
-                    if (item != null) ItemRow(item)
+                    if (item != null) ItemRow(item) else PlaceholderRow(index)
                 }
-
-                appendLoadItem(lazyPagingItems)
             }
         }
     }
@@ -126,6 +158,41 @@ private fun ScenarioPicker(
                     },
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun PlaceholderRow(index: Int) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        ),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = RoundedCornerShape(18.dp),
+                    ),
+            )
+            Spacer(Modifier.size(16.dp))
+            Text(
+                text = "Loading item #$index…",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
@@ -222,34 +289,6 @@ private fun LazyListScope.errorItem(exception: Throwable, onRetry: () -> Unit) {
             Spacer(Modifier.size(16.dp))
             Button(onClick = onRetry) { Text("Retry") }
         }
-    }
-}
-
-private fun LazyListScope.prependLoadItem(lazyPagingItems: LazyPagingItems<SampleItem>) {
-    when (val prepend = lazyPagingItems.loadState.prepend) {
-        is LoadState.Loading -> item { LoadingFooter(text = "Loading previous…") }
-        is LoadState.Error -> item {
-            RetryFooter(
-                message = prepend.error.message ?: "Failed to load previous page",
-                onRetry = { lazyPagingItems.retry() },
-            )
-        }
-
-        is LoadState.NotLoading -> Unit
-    }
-}
-
-private fun LazyListScope.appendLoadItem(lazyPagingItems: LazyPagingItems<SampleItem>) {
-    when (val append = lazyPagingItems.loadState.append) {
-        is LoadState.Loading -> item { LoadingFooter(text = "Loading more…") }
-        is LoadState.Error -> item {
-            RetryFooter(
-                message = append.error.message ?: "Failed to load next page",
-                onRetry = { lazyPagingItems.retry() },
-            )
-        }
-
-        is LoadState.NotLoading -> Unit
     }
 }
 

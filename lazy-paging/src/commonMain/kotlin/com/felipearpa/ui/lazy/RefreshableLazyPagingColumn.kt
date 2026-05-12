@@ -37,6 +37,18 @@ import androidx.paging.compose.LazyPagingItems
  * @param refreshLoadingContent The content to display when the items are loading.
  * @param errorContent The content to display when the items have an error.
  * @param emptyContent The content to display when the items are empty.
+ * @param prependLoadingContent Content shown above the items while a prepend page is loading.
+ * Intended for `enablePlaceholders = false`, where the list ends at the last loaded row and there
+ * is no placeholder to indicate further loading; with placeholders enabled, leave this empty.
+ * @param appendLoadingContent Content shown below the items while an append page is loading.
+ * Intended for `enablePlaceholders = false`, where the list ends at the last loaded row and there
+ * is no placeholder to indicate further loading; with placeholders enabled, leave this empty.
+ * @param prependErrorContent Content shown above the items when a prepend page fails.
+ * Intended for `enablePlaceholders = false`; with placeholders enabled, surface the error in the
+ * placeholder row instead and leave this empty.
+ * @param appendErrorContent Content shown below the items when an append page fails.
+ * Intended for `enablePlaceholders = false`; with placeholders enabled, surface the error in the
+ * placeholder row instead and leave this empty.
  * @param itemContent The content to display for each item.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +71,10 @@ fun <Item : Any> RefreshableLazyPagingColumn(
     },
     errorContent: LazyListScope.(Throwable) -> Unit = {},
     emptyContent: LazyListScope.() -> Unit = {},
+    prependLoadingContent: LazyListScope.() -> Unit = {},
+    appendLoadingContent: LazyListScope.() -> Unit = {},
+    prependErrorContent: LazyListScope.(Throwable) -> Unit = {},
+    appendErrorContent: LazyListScope.(Throwable) -> Unit = {},
     itemContent: LazyListScope.() -> Unit,
 ) {
     val pullToRefreshState = rememberPullToRefreshState()
@@ -100,6 +116,10 @@ fun <Item : Any> RefreshableLazyPagingColumn(
             },
             errorContent = errorContent,
             emptyContent = emptyContent,
+            prependLoadingContent = prependLoadingContent,
+            appendLoadingContent = appendLoadingContent,
+            prependErrorContent = prependErrorContent,
+            appendErrorContent = appendErrorContent,
             itemContent = itemContent,
         )
     }

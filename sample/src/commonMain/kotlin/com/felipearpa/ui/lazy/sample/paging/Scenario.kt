@@ -37,6 +37,10 @@ enum class Scenario(
         displayName = "Slow network",
         summary = "Long delays on refresh and page loads to inspect loading states.",
     ),
+    WithPlaceholders(
+        displayName = "With placeholders (bidirectional)",
+        summary = "Placeholders on, starting at page 10 of 20. List shows the full 400-item count with placeholder rows for unloaded positions — scroll up or down to convert them. The prepend/append slot params remain wired but are redundant here — the placeholder row already conveys loading.",
+    ),
 }
 
 private const val PAGE_SIZE = 20
@@ -47,7 +51,7 @@ fun Scenario.pager(): Pager<Int, SampleItem> {
     val config = PagingConfig(
         pageSize = PAGE_SIZE,
         prefetchDistance = PAGE_SIZE / 2,
-        enablePlaceholders = false,
+        enablePlaceholders = this == Scenario.WithPlaceholders,
         initialLoadSize = PAGE_SIZE,
     )
 
@@ -72,6 +76,6 @@ fun Scenario.pager(): Pager<Int, SampleItem> {
 fun Scenario.flow(): Flow<PagingData<SampleItem>> = pager().flow
 
 private fun Scenario.initialKey(): Int = when (this) {
-    Scenario.Bidirectional, Scenario.PrependError -> MIDDLE_PAGE
+    Scenario.Bidirectional, Scenario.PrependError, Scenario.WithPlaceholders -> MIDDLE_PAGE
     else -> 0
 }

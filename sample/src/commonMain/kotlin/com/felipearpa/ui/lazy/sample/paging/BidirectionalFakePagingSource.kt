@@ -63,6 +63,8 @@ class BidirectionalFakePagingSource(
             data = items,
             prevKey = if (pageIndex > 0) pageIndex - 1 else null,
             nextKey = if (pageIndex + 1 < totalPages) pageIndex + 1 else null,
+            itemsBefore = startIndex,
+            itemsAfter = totalItems - endIndex,
         )
     }
 }
