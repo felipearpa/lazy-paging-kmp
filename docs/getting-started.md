@@ -33,7 +33,7 @@ Add the dependency. In a Compose Multiplatform module you typically put it in `c
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("com.felipearpa:lazy-paging:0.0.1")
+            implementation("com.felipearpa:lazy-paging:0.0.2")
             // Paging — bring your own version
             implementation("androidx.paging:paging-common:3.4.2")
             implementation("androidx.paging:paging-compose:3.4.2")
