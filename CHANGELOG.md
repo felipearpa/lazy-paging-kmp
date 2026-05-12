@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [0.0.2] - 2026-05-12
+### Added
+- **Added** `prependLoadingContent` and `appendLoadingContent` slots to `LazyPagingColumn` and `RefreshableLazyPagingColumn` for rendering content above/below the items while a prepend or append page is loading.
+- **Added** `prependErrorContent` and `appendErrorContent` slots to `LazyPagingColumn` and `RefreshableLazyPagingColumn` for rendering content above/below the items when a prepend or append page fails.
+
+These slots are intended for use with `enablePlaceholders = false`; when placeholders are enabled, surface prepend/append load and error states in the placeholder rows instead.
+
+---
+
 ## [0.0.1] - 2026-04-18
 ### Initial Release
 - **Introduced** `LazyPagingColumn`, a Compose Multiplatform `LazyColumn` that consumes `LazyPagingItems<T>` and renders dedicated slots for loading, empty, error, and content states.

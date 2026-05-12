@@ -35,7 +35,7 @@ Then add the dependency (Compose Multiplatform module, typically in `commonMain`
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("com.felipearpa:lazy-paging:0.0.1")
+            implementation("com.felipearpa:lazy-paging:0.0.2")
         }
     }
 }
