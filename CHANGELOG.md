@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [0.0.3] - 2026-10-11
+### Fixed
+- **Fixed** `rememberLazyPagingColumnState` starting as `Content` before anything loaded. A column shown before its first page rendered an empty content area, and the refresh indicator when its first load state was already `Loading`, until that page arrived. The state now starts as `Loading` when there are no items, so `loadingContent` shows from the first frame.
+
+---
+
 ## [0.0.2] - 2026-05-12
 ### Added
 - **Added** `prependLoadingContent` and `appendLoadingContent` slots to `LazyPagingColumn` and `RefreshableLazyPagingColumn` for rendering content above/below the items while a prepend or append page is loading.

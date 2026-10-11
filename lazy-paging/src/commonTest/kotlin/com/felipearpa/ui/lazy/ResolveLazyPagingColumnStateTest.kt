@@ -125,4 +125,27 @@ class ResolveLazyPagingColumnStateTest {
 
         result shouldBe LazyPagingColumnState.Loading
     }
+
+    @Test
+    fun `given no items when the state starts then it is Loading`() {
+        initialLazyPagingColumnState(itemCount = 0) shouldBe LazyPagingColumnState.Loading
+    }
+
+    @Test
+    fun `given items when the state starts then it is Content`() {
+        initialLazyPagingColumnState(itemCount = 3) shouldBe LazyPagingColumnState.Content
+    }
+
+    @Test
+    fun `given the initial state without items when the first refresh is Loading then stays Loading`() {
+        val result = resolveLazyPagingColumnState(
+            refresh = LoadState.Loading,
+            prepend = LoadState.NotLoading(endOfPaginationReached = false),
+            append = LoadState.NotLoading(endOfPaginationReached = false),
+            itemCount = 0,
+            current = initialLazyPagingColumnState(itemCount = 0),
+        )
+
+        result shouldBe LazyPagingColumnState.Loading
+    }
 }
