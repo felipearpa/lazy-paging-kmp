@@ -46,6 +46,8 @@ Given `refresh`, `prepend`, and `append` from `lazyPagingItems.loadState`, plus 
 | `refresh` not loading, `prepend` & `append` ended, `itemCount == 0` | `Empty` |
 | `refresh` not loading, `itemCount > 0` | `Content` |
 | `refresh` not loading, `itemCount == 0` | `Loading` |
-| `refresh is LoadState.Loading` | keep the current state (falls back to `Loading` if there isn't one) |
+| `refresh is LoadState.Loading` | keep the current state |
+
+The state starts as `Loading` when there are no items and as `Content` otherwise, so a column shown before its first page renders `loadingContent` from its first frame.
 
 The last rule is what keeps the list on screen during a background refresh instead of flashing back to a spinner — the transient `Content` → `Loading` → `Content` cycle is collapsed into a single `Content`, and the refresh indicator is shown via `refreshLoadingContent` instead.
